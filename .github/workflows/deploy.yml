@@ -11,8 +11,8 @@ jobs:
       - name: FTP Deploy to Production
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ${{ secrets.FTP_TANPOPO_HOST }}
+          username: ${{ secrets.FTP_TANPOPO_USER }}
+          password: ${{ secrets.FTP_TANPOPO_PASS }}
           server-dir: /xs969605.xsrv.jp/public_html/inhouse/wp-content/plugins/paid-leave-manager/
           dangerous-clean-slate: false
