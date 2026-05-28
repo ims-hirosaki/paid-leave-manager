@@ -24,6 +24,9 @@ class PL_Consumption {
         }
 
         $units = json_decode( PL_Rules::get_setting( 'consumption_units', '["1.0"]' ), true );
+        if ( ! is_array( $units ) || empty( $units ) ) {
+            $units = array( 1.0 );
+        }
         if ( ! in_array( (float) $consume_days, array_map('floatval', $units), true ) ) {
             $units_str = implode( '・', $units ) . ' 日';
             return array( 'ok' => false, 'message' => "消化単位は {$units_str} のみ有効です" );
