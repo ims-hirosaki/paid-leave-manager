@@ -41,7 +41,7 @@ class PL_Admin_Menu {
             '有給管理システム', '有給管理', 'manage_options',
             'paid-leave-manager',
             array( $this, 'render_employee_list' ),
-            'dashicons-calendar-alt', 31
+            'dashicons-palmtree', 31
         );
         add_submenu_page( 'paid-leave-manager', '従業員一覧',       '従業員一覧',       'manage_options', 'paid-leave-manager',  array( $this, 'render_employee_list' ) );
         add_submenu_page( 'paid-leave-manager', '付与・消化登録',   '付与・消化登録',   'manage_options', 'pl-grant-register',   array( $this, 'render_grant_register' ) );
