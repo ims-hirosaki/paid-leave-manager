@@ -49,7 +49,8 @@ class PL_Admin_Menu {
         add_submenu_page( 'paid-leave-manager', '有給ルール設定',   '有給ルール設定',   'manage_options', 'pl-rules',            array( $this, 'render_rules' ) );
         // ★ テストデータ削除
         add_submenu_page( 'paid-leave-manager', 'テストデータ削除', 'テストデータ削除', 'manage_options', 'pl-data-reset',       array( $this, 'render_data_reset' ) );
-
+        // ★ CSVインポート
+        add_submenu_page( 'paid-leave-manager', '有給インポート', '有給インポート', 'manage_options', 'pl-import', array( $this, 'render_import' ) );
         // ★ PL_SHOW_REQUESTS_PAGE が true の時だけメニューに表示
         if ( PL_SHOW_REQUESTS_PAGE ) {
             add_submenu_page( 'paid-leave-manager', '有給申請管理', '有給申請管理', 'manage_options', 'pl-requests', array( $this, 'render_requests' ) );
@@ -65,7 +66,8 @@ class PL_Admin_Menu {
         $pl_pages = array(
             'paid-leave-manager', 'pl-grant-register',
             'pl-employee-detail', 'pl-summary', 'pl-rules',
-            'pl-data-reset', // ★ 追加
+            'pl-data-reset',
+            'pl-import', 
         );
 
         // ★ 有効な場合のみ pl-requests をロード対象に追加
@@ -103,4 +105,5 @@ class PL_Admin_Menu {
 
     // ★ requests.php はファイルとして残しておく（定数がfalseの間は呼ばれない）
     public function render_requests()        { include PL_DIR . 'admin/views/requests.php'; }
+    public function render_import()          { include PL_DIR . 'admin/views/import.php'; } // ★ CSVインポート
 }
