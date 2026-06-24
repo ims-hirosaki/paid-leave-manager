@@ -1,4 +1,17 @@
 <?php if ( ! defined('ABSPATH') ) exit;
+if ( ! function_exists( 'pl_format_tenure' ) ) {
+    /** 勤続月数(int) を「〇年〇ヶ月」表記に変換 */
+    function pl_format_tenure( $months ) {
+        $months = (int) $months;
+        if ( $months <= 0 ) return '—';
+        $y = intdiv( $months, 12 );
+        $m = $months % 12;
+        if ( $y > 0 && $m > 0 ) return $y . '年' . $m . 'ヶ月';
+        if ( $y > 0 )           return $y . '年';
+        return $m . 'ヶ月';
+    }
+}
+
 $code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
 $emp  = $code ? PL_Employee_Bridge::get_by_code( $code ) : null;
 
@@ -188,12 +201,12 @@ if ( $emp ) {
     <?php else : ?>
     <div class="pl-table-wrap">
     <table class="pl-data-table">
-        <thead><tr><th>付与日</th><th>勤続月数</th><th>週勤務</th><th>付与日数</th><th>残日数</th><th>有効期限</th><th>状態</th></tr></thead>
+        <thead><tr><th>付与日</th><th>勤続年数</th><th>週勤務</th><th>付与日数</th><th>残日数</th><th>有効期限</th><th>状態</th></tr></thead>
         <tbody>
         <?php foreach ( $recent as $g ) : ?>
         <tr>
             <td><?php echo esc_html($g->grant_date); ?></td>
-            <td><?php echo (int)$g->tenure_months; ?> ヶ月</td>
+            <td><?php echo esc_html( pl_format_tenure( $g->tenure_months ) ); ?></td>
             <td>週<?php echo (int)($g->weekly_work_days_at_grant ?? 5); ?>勤務</td>
             <td><?php echo esc_html($g->granted_days); ?> 日</td>
             <td><strong><?php echo esc_html($g->remaining_days); ?> 日</strong></td>
@@ -217,7 +230,7 @@ if ( $emp ) {
         <?php foreach ( $all_grants as $g ) : ?>
         <tr>
             <td><?php echo esc_html($g->grant_date); ?></td>
-            <td><?php echo (int)$g->tenure_months; ?> ヶ月</td>
+            <td><?php echo esc_html( pl_format_tenure( $g->tenure_months ) ); ?></td>
             <td>週<?php echo (int)($g->weekly_work_days_at_grant ?? 5); ?>勤務</td>
             <td><?php echo esc_html($g->granted_days); ?> 日</td>
             <td><strong><?php echo esc_html($g->remaining_days); ?> 日</strong></td>
@@ -408,20 +421,6 @@ jQuery(document).ready(function($) {
                 .text(currentAction === 'approve' ? '受理し消化登録をする' : '却下する');
             alert('通信エラーが発生しました。');
         });
-    });
-
-    // モーダル：キャンセル
-    $('#plDetailReqModalCancel').on('click', function() {
-        $('#plDetailReqModal').hide();
-    });
-
-    // ドロワートグル
-    $('.pl-drawer-toggle').on('click', function() {
-        var id      = $(this).attr('id').replace('Toggle', 'Drawer');
-        var $drawer = $('#' + id);
-        var $icon   = $(this).find('.pl-drawer-icon');
-        $drawer.slideToggle(200);
-        $icon.text($drawer.is(':hidden') ? '▼' : '▲');
     });
 });
 </script>
