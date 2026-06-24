@@ -33,8 +33,20 @@ class PL_Grant {
             $employee_code, $year_start
         ) );
 
-        $total_consumed    = $total_granted - $total_remaining;
-        $rate              = $total_granted > 0 ? round( $total_consumed / $total_granted * 100, 1 ) : 0;
+// ★ 消化日数（累計）は消化テーブルの実績から算出（失効分を含めない）
+        $total_consumed = (float) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(SUM(consumed_days),0)
+             FROM {$wpdb->prefix}paidleave_consumptions
+             WHERE employee_code = %s",
+            $employee_code
+        ) );
+
+        // ★ 失効日数 ＝ 付与合計 − 実消化 − 有効残（マイナスは0に丸め）
+        $total_expired = $total_granted - $total_consumed - $total_remaining;
+        if ( $total_expired < 0 ) $total_expired = 0.0;
+
+        // ★ 消化率 ＝ 実消化 ÷ 付与合計
+        $rate = $total_granted > 0 ? round( $total_consumed / $total_granted * 100, 1 ) : 0;
 
         $warn_date = date('Y-m-d', strtotime('+3 months'));
         $expiring  = $wpdb->get_results( $wpdb->prepare(
@@ -50,6 +62,7 @@ class PL_Grant {
             'total_granted'      => $total_granted,
             'total_remaining'    => $total_remaining,
             'total_consumed'     => $total_consumed,
+            'total_expired'      => $total_expired,
             'consumed_this_year' => $consumed_this_year,
             'consumption_rate'   => $rate,
             'expiring_soon'      => $expiring,
@@ -161,6 +174,7 @@ class PL_Grant {
         wp_send_json_success( array(
             'total_remaining'    => (float) $summary['total_remaining'],
             'total_consumed'     => (float) $summary['total_consumed'],
+            'total_expired'      => (float) $summary['total_expired'],
             'consumed_this_year' => (float) $summary['consumed_this_year'],
             'consumption_rate'   => (float) $summary['consumption_rate'],
         ) );

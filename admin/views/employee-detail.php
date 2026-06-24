@@ -72,6 +72,10 @@ if ( $emp ) {
             <div class="pl-num-label">消化日数（累計）</div>
         </div>
         <div class="pl-summary-num">
+            <div class="pl-num-val" id="sum-expired"><?php echo esc_html($summary['total_expired']); ?></div>
+            <div class="pl-num-label">失効日数</div>
+        </div>
+        <div class="pl-summary-num">
             <div class="pl-num-val" id="sum-this-year"><?php echo esc_html($summary['consumed_this_year']); ?></div>
             <div class="pl-num-label">今年の消化</div>
         </div>
@@ -304,6 +308,7 @@ jQuery(document).ready(function($) {
 
             $('#sum-remaining').text(fmt(s.total_remaining));
             $('#sum-consumed').text(fmt(s.total_consumed));
+            $('#sum-expired').text(fmt(s.total_expired));
             $('#sum-this-year').text(fmt(s.consumed_this_year));
             $('#sum-rate').text(s.consumption_rate + '%');
             $('#sum-rate-bar').text(s.consumption_rate);
