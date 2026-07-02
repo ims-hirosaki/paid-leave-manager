@@ -82,7 +82,8 @@
 
             filtered.forEach(function (e) {
                 const remaining = parseFloat(e.remaining || 0);
-                const consumed = parseFloat(e.consumed || 0);
+                const consumed = parseFloat(e.consumed_this_year || 0);
+
 
                 // 失効予告列
                 const expiryDays = parseFloat(e.expiry_warning_days || 0);
