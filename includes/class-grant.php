@@ -9,6 +9,7 @@ class PL_Grant {
 
     public static function get_summary( $employee_code ) {
         global $wpdb;
+        $today = date('Y-m-d');
 
         $grants = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}paidleave_grants
@@ -17,23 +18,17 @@ class PL_Grant {
             $employee_code
         ) );
 
-        $total_granted   = array_sum( array_column( (array) $grants, 'granted_days' ) );
+        // ===== 全体（後方互換用） =====
+        $total_granted = array_sum( array_column( (array) $grants, 'granted_days' ) );
+
         $total_remaining = (float) $wpdb->get_var( $wpdb->prepare(
             "SELECT COALESCE(SUM(remaining_days),0)
              FROM {$wpdb->prefix}paidleave_grants
              WHERE employee_code = %s AND is_expired = 0 AND expiry_date >= %s",
-            $employee_code, date('Y-m-d')
+            $employee_code, $today
         ) );
 
-        $year_start         = date('Y') . '-01-01';
-        $consumed_this_year = (float) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COALESCE(SUM(c.consumed_days),0)
-             FROM {$wpdb->prefix}paidleave_consumptions c
-             WHERE c.employee_code = %s AND c.consumed_date >= %s",
-            $employee_code, $year_start
-        ) );
-
-// ★ 消化日数（累計）は消化テーブルの実績から算出（失効分を含めない）
+        // 実消化（累計）は消化テーブルの実績から算出（失効分を含めない）
         $total_consumed = (float) $wpdb->get_var( $wpdb->prepare(
             "SELECT COALESCE(SUM(consumed_days),0)
              FROM {$wpdb->prefix}paidleave_consumptions
@@ -41,24 +36,107 @@ class PL_Grant {
             $employee_code
         ) );
 
-        // ★ 失効日数 ＝ 付与合計 − 実消化 − 有効残（マイナスは0に丸め）
+        // 失効日数 ＝ 付与合計 − 実消化 − 有効残（マイナスは0に丸め）※後方互換用に保持
         $total_expired = $total_granted - $total_consumed - $total_remaining;
         if ( $total_expired < 0 ) $total_expired = 0.0;
 
-        // ★ 消化率 ＝ 実消化 ÷ 付与合計
-        $rate = $total_granted > 0 ? round( $total_consumed / $total_granted * 100, 1 ) : 0;
+        $rate = $total_granted > 0
+            ? round( $total_consumed / $total_granted * 100, 1 ) : 0;
 
+        // 暦年消化（後方互換：従業員一覧等が参照）
+        $year_start_cal = date('Y') . '-01-01';
+        $consumed_this_year = (float) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(SUM(consumed_days),0)
+             FROM {$wpdb->prefix}paidleave_consumptions
+             WHERE employee_code = %s AND consumed_date >= %s",
+            $employee_code, $year_start_cal
+        ) );
+
+        // =====================================================
+        //  ① 現在有効期間内のサマリ
+        //     対象グラント = is_expired = 0 AND expiry_date >= 今日
+        // =====================================================
+        $valid_granted = (float) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(SUM(granted_days),0)
+             FROM {$wpdb->prefix}paidleave_grants
+             WHERE employee_code = %s AND is_expired = 0 AND expiry_date >= %s",
+            $employee_code, $today
+        ) );
+
+        // 有効グラントに紐づく消化の実績合計（remaining_days ではなく消化テーブルを正とする）
+        $valid_consumed = (float) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(SUM(c.consumed_days),0)
+             FROM {$wpdb->prefix}paidleave_consumptions c
+             INNER JOIN {$wpdb->prefix}paidleave_grants g ON c.grant_id = g.id
+             WHERE c.employee_code = %s AND g.is_expired = 0 AND g.expiry_date >= %s",
+            $employee_code, $today
+        ) );
+
+        $valid_rate = $valid_granted > 0
+            ? round( $valid_consumed / $valid_granted * 100, 1 ) : 0;
+
+        // =====================================================
+        //  ② 今年のサマリ（付与起算）
+        //     基準日 = grant_date <= 今日 の最新 grant_date
+        //     窓     = [基準日, 基準日 + 1年 − 1日]（例: 2026-05-08 → 2027-05-07）
+        // =====================================================
+        $cycle_start   = $wpdb->get_var( $wpdb->prepare(
+            "SELECT MAX(grant_date)
+             FROM {$wpdb->prefix}paidleave_grants
+             WHERE employee_code = %s AND grant_date <= %s",
+            $employee_code, $today
+        ) );
+
+        $cycle_end     = null;
+        $year_granted  = 0.0;
+        $year_consumed = 0.0;
+        $year_rate     = 0;
+        $year_alert    = false;
+
+        if ( $cycle_start ) {
+            $cycle_end = date('Y-m-d', strtotime( $cycle_start . ' +1 year -1 day' ));
+
+            $year_granted = (float) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COALESCE(SUM(granted_days),0)
+                 FROM {$wpdb->prefix}paidleave_grants
+                 WHERE employee_code = %s AND grant_date BETWEEN %s AND %s",
+                $employee_code, $cycle_start, $cycle_end
+            ) );
+
+            $year_consumed = (float) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COALESCE(SUM(consumed_days),0)
+                 FROM {$wpdb->prefix}paidleave_consumptions
+                 WHERE employee_code = %s AND consumed_date BETWEEN %s AND %s",
+                $employee_code, $cycle_start, $cycle_end
+            ) );
+
+            $year_rate = $year_granted > 0
+                ? round( $year_consumed / $year_granted * 100, 1 ) : 0;
+
+            // アラート条件: 付与 >= 10日 かつ 消化 < 5日 かつ 窓の残り3か月未満
+            //              （＝今日 >= 基準日 + 9か月 かつ 今日 <= 窓の終端）
+            $alert_threshold = date('Y-m-d', strtotime( $cycle_start . ' +9 months' ));
+            if ( $year_granted >= 10
+                 && $year_consumed < 5
+                 && $today >= $alert_threshold
+                 && $today <= $cycle_end ) {
+                $year_alert = true;
+            }
+        }
+
+        // 失効予告（従来どおり）
         $warn_date = date('Y-m-d', strtotime('+3 months'));
         $expiring  = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}paidleave_grants
              WHERE employee_code = %s AND is_expired = 0
                AND expiry_date BETWEEN %s AND %s
              ORDER BY expiry_date ASC",
-            $employee_code, date('Y-m-d'), $warn_date
+            $employee_code, $today, $warn_date
         ) );
 
         return array(
             'grants'             => $grants,
+            // 後方互換キー
             'total_granted'      => $total_granted,
             'total_remaining'    => $total_remaining,
             'total_consumed'     => $total_consumed,
@@ -66,6 +144,18 @@ class PL_Grant {
             'consumed_this_year' => $consumed_this_year,
             'consumption_rate'   => $rate,
             'expiring_soon'      => $expiring,
+            // ① 現在有効期間内
+            'valid_granted'      => $valid_granted,
+            'valid_consumed'     => $valid_consumed,
+            'valid_remaining'    => $total_remaining,
+            'valid_rate'         => $valid_rate,
+            // ② 今年（付与起算）
+            'cycle_start'        => $cycle_start,
+            'cycle_end'          => $cycle_end,
+            'year_granted'       => $year_granted,
+            'year_consumed'      => $year_consumed,
+            'year_rate'          => $year_rate,
+            'year_alert'         => $year_alert,
         );
     }
 
@@ -161,7 +251,7 @@ class PL_Grant {
         ) );
     }
 
-    // ★ 追加：個人管理ページ用サマリー再取得 AJAX
+// ★ 個人管理ページ用サマリー再取得 AJAX
     public static function ajax_get_summary_for_employee() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( '権限がありません' );
@@ -172,6 +262,19 @@ class PL_Grant {
         $summary = self::get_summary( $code );
 
         wp_send_json_success( array(
+            // ① 現在有効期間内
+            'valid_granted'   => (float) $summary['valid_granted'],
+            'valid_consumed'  => (float) $summary['valid_consumed'],
+            'valid_remaining' => (float) $summary['valid_remaining'],
+            'valid_rate'      => (float) $summary['valid_rate'],
+            // ② 今年（付与起算）
+            'year_granted'    => (float) $summary['year_granted'],
+            'year_consumed'   => (float) $summary['year_consumed'],
+            'year_rate'       => (float) $summary['year_rate'],
+            'year_alert'      => (bool)  $summary['year_alert'],
+            'cycle_start'     => $summary['cycle_start'],
+            'cycle_end'       => $summary['cycle_end'],
+            // 後方互換
             'total_remaining'    => (float) $summary['total_remaining'],
             'total_consumed'     => (float) $summary['total_consumed'],
             'total_expired'      => (float) $summary['total_expired'],
