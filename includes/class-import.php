@@ -219,7 +219,7 @@ class PL_Import {
             }
             $seen_in_file[ $key ] = true;
 
-            $expiry_date = date( 'Y-m-d', strtotime( $grant_date . ' +' . $expiration_years . ' years' ) );
+            $expiry_date = date( 'Y-m-d', strtotime( $grant_date . ' +' . $expiration_years . ' years -1 day' ) );
             $is_expired  = ( $expiry_date < $today ) ? 1 : 0;
             $remaining   = $is_expired ? 0.0 : $granted_days;
 

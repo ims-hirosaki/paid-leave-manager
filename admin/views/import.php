@@ -36,7 +36,7 @@ if ( $pl_exp_years <= 0 ) $pl_exp_years = 2;
         <ul style="margin:0; padding-left:20px; font-size:13px; line-height:1.9;">
             <li>CSVの列順は <strong>社員番号 / 有給発生日 / 付与日数</strong>（末尾の空カラム・空行は無視）</li>
             <li>文字コードは <strong>UTF-8（BOM付き可）</strong>、日付は <strong>YYYY-MM-DD</strong></li>
-            <li>失効日は <strong>「付与日 ＋ <?php echo esc_html( $pl_exp_years ); ?>年」で自動計算</strong></li>
+            <li>失効日は <strong>「付与日 ＋ <?php echo esc_html( $pl_exp_years ); ?>年 − 1日」で自動計算</strong></li>
             <li>失効日が今日を過ぎた付与は <strong>失効（残日数0）</strong>、有効な付与は <strong>残日数＝付与日数（満額）</strong>で取込</li>
             <li>社員マスタに無い社員番号はエラー、同じ「社員番号＋付与日」が既存なら重複スキップ</li>
         </ul>

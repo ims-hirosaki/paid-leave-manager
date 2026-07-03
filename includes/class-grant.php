@@ -323,7 +323,7 @@ class PL_Grant {
 
         $settings        = PL_Rules::get_settings();
         $expiration_years = (int) ( $settings['expiration_years'] ?? 2 );
-        $expiry_date     = date( 'Y-m-d', strtotime( $grant_date . ' +' . $expiration_years . ' years' ) );
+        $expiry_date     = date( 'Y-m-d', strtotime( $grant_date . ' +' . $expiration_years . ' years -1 day' ) );
 
         $result = $wpdb->insert(
             $wpdb->prefix . 'paidleave_grants',
