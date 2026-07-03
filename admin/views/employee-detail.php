@@ -80,16 +80,6 @@ if ( $emp ) {
             <div class="pl-num-label">消化率（累計）</div>
         </div>
     </div>
-    <?php if ( $summary['valid_granted'] > 0 ) : ?>
-    <div class="pl-bar-wrap" style="margin-top:1rem;">
-        <div class="pl-progress-bar pl-progress-bar-lg">
-            <?php $vrate = $summary['valid_rate']; ?>
-            <div id="sum-progress-fill" class="pl-progress-fill <?php echo $vrate >= 100 ? 'pl-progress-done' : ($vrate >= 80 ? '' : 'pl-progress-warn'); ?>"
-                 style="width:<?php echo min(100, $vrate); ?>%"></div>
-        </div>
-        <div class="pl-bar-rate"><span id="sum-rate-bar"><?php echo esc_html($vrate); ?></span>% 消化済み</div>
-    </div>
-    <?php endif; ?>
 </div>
 
 <!-- ★ 消化サマリー② 今年（付与起算） -->
@@ -346,15 +336,6 @@ jQuery(document).ready(function($) {
             $('#sum-valid-consumed').text(fmt(s.valid_consumed));
             $('#sum-valid-remaining').text(fmt(s.valid_remaining));
             $('#sum-valid-rate').text(fmt(s.valid_rate) + '%');
-            $('#sum-rate-bar').text(fmt(s.valid_rate));
-
-            // プログレスバーの幅・色を更新（①消化率・累計）
-            var r = parseFloat(s.valid_rate);
-            var w = Math.min(100, isNaN(r) ? 0 : r);
-            $('#sum-progress-fill')
-                .css('width', w + '%')
-                .removeClass('pl-progress-warn pl-progress-done')
-                .addClass(r >= 100 ? 'pl-progress-done' : (r >= 80 ? '' : 'pl-progress-warn'));
 
             // ② 今年（付与起算）
             $('#sum-year-granted').text(fmt(s.year_granted));
