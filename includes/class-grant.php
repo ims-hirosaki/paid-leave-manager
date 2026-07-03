@@ -3,6 +3,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class PL_Grant {
 
+    /**
+     * 「今年」の付与起算サイクルを返す（全ページ共通の定義）
+     *   基準日 = grant_date <= 今日 の最新 grant_date
+     *   窓     = [基準日, 基準日 + 1年 − 1日]
+     * @return array|null array('start'=>'Y-m-d','end'=>'Y-m-d')／付与が無ければ null
+     */
+    public static function get_current_cycle( $employee_code ) {
+        global $wpdb;
+        $start = $wpdb->get_var( $wpdb->prepare(
+            "SELECT MAX(grant_date)
+             FROM {$wpdb->prefix}paidleave_grants
+             WHERE employee_code = %s AND grant_date <= %s",
+            $employee_code, date('Y-m-d')
+        ) );
+        if ( ! $start ) return null;
+        return array(
+            'start' => $start,
+            'end'   => date('Y-m-d', strtotime( $start . ' +1 year -1 day' )),
+        );
+    }
+
     // =====================================================
     //  サマリー取得（個人管理ページ用）
     // =====================================================
@@ -43,15 +64,6 @@ class PL_Grant {
         $rate = $total_granted > 0
             ? round( $total_consumed / $total_granted * 100, 1 ) : 0;
 
-        // 暦年消化（後方互換：従業員一覧等が参照）
-        $year_start_cal = date('Y') . '-01-01';
-        $consumed_this_year = (float) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COALESCE(SUM(consumed_days),0)
-             FROM {$wpdb->prefix}paidleave_consumptions
-             WHERE employee_code = %s AND consumed_date >= %s",
-            $employee_code, $year_start_cal
-        ) );
-
         // =====================================================
         //  ① 現在有効期間内のサマリ
         //     対象グラント = is_expired = 0 AND expiry_date >= 今日
@@ -79,23 +91,18 @@ class PL_Grant {
         //  ② 今年のサマリ（付与起算）
         //     基準日 = grant_date <= 今日 の最新 grant_date
         //     窓     = [基準日, 基準日 + 1年 − 1日]（例: 2026-05-08 → 2027-05-07）
+        //     サイクル定義は get_current_cycle() に一元化
         // =====================================================
-        $cycle_start   = $wpdb->get_var( $wpdb->prepare(
-            "SELECT MAX(grant_date)
-             FROM {$wpdb->prefix}paidleave_grants
-             WHERE employee_code = %s AND grant_date <= %s",
-            $employee_code, $today
-        ) );
+        $cycle       = self::get_current_cycle( $employee_code );
+        $cycle_start = $cycle ? $cycle['start'] : null;
+        $cycle_end   = $cycle ? $cycle['end']   : null;
 
-        $cycle_end     = null;
         $year_granted  = 0.0;
         $year_consumed = 0.0;
         $year_rate     = 0;
         $year_alert    = false;
 
         if ( $cycle_start ) {
-            $cycle_end = date('Y-m-d', strtotime( $cycle_start . ' +1 year -1 day' ));
-
             $year_granted = (float) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COALESCE(SUM(granted_days),0)
                  FROM {$wpdb->prefix}paidleave_grants
@@ -123,6 +130,9 @@ class PL_Grant {
                 $year_alert = true;
             }
         }
+
+        // 「今年の消化」も付与起算に統一（全ページ共通）。暦年クエリは廃止。
+        $consumed_this_year = $year_consumed;
 
         // 失効予告（従来どおり）
         $warn_date = date('Y-m-d', strtotime('+3 months'));
@@ -251,7 +261,7 @@ class PL_Grant {
         ) );
     }
 
-// ★ 個人管理ページ用サマリー再取得 AJAX
+    // ★ 個人管理ページ用サマリー再取得 AJAX
     public static function ajax_get_summary_for_employee() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
         if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( '権限がありません' );

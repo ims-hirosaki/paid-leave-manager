@@ -36,17 +36,19 @@ class PL_Summary {
                 $code, $date_from, $date_to
             ) );
 
-            // ★ 今年の消化（暦年 1/1〜12/31）— 従業員一覧の「今年の消化」列専用。
-            //    一覧は date_from/date_to に 2000-01-01〜2099-12-31 を渡すため、
-            //    $consumed_in_period（＝全期間累計）とは別に当年で集計する。
-            $year_start         = date('Y') . '-01-01';
-            $year_end           = date('Y') . '-12-31';
-            $consumed_this_year = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COALESCE(SUM(consumed_days),0)
-                 FROM {$wpdb->prefix}paidleave_consumptions
-                 WHERE employee_code = %s AND consumed_date BETWEEN %s AND %s",
-                $code, $year_start, $year_end
-            ) );
+            // 変更後（付与起算・共通ヘルパー参照）
+            // ★ 今年の消化（付与起算）— 全ページで「今年」を付与起算に統一。
+            //    サイクル定義は PL_Grant::get_current_cycle() に一元化。
+            $cycle              = PL_Grant::get_current_cycle( $code );
+            $consumed_this_year = 0.0;
+            if ( $cycle ) {
+                $consumed_this_year = (float) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COALESCE(SUM(consumed_days),0)
+                     FROM {$wpdb->prefix}paidleave_consumptions
+                     WHERE employee_code = %s AND consumed_date BETWEEN %s AND %s",
+                    $code, $cycle['start'], $cycle['end']
+                ) );
+            }
 
             $total_granted   = array_sum( array_column( (array) $grants, 'granted_days' ) );
             $total_remaining = (float) $wpdb->get_var( $wpdb->prepare(
