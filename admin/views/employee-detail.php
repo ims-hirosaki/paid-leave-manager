@@ -59,65 +59,64 @@ if ( $emp ) {
     </div>
 </div>
 
-<!-- ★ 消化サマリー① 現在有効期間内 -->
-<div class="pl-card" id="pl-summary-card-valid">
-    <div class="pl-card-title">有給サマリー（現在有効期間内）</div>
-    <div class="pl-summary-nums">
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-valid-granted"><?php echo esc_html($summary['valid_granted']); ?></div>
-            <div class="pl-num-label">付与日数</div>
-        </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-valid-consumed"><?php echo esc_html($summary['valid_consumed']); ?></div>
-            <div class="pl-num-label">消化日数（累計）</div>
-        </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-valid-remaining"><?php echo esc_html($summary['valid_remaining']); ?></div>
-            <div class="pl-num-label">残日数（有効）</div>
-        </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-valid-rate"><?php echo esc_html($summary['valid_rate']); ?>%</div>
-            <div class="pl-num-label">消化率（累計）</div>
-        </div>
-    </div>
-</div>
+<!-- ★ 消化サマリー（有給サマリー ＋ 今年の消化状況 を統合） -->
+<div class="pl-card" id="pl-summary-card">
+    <div class="pl-summary-split">
 
-<!-- ★ 消化サマリー② 今年（付与起算） -->
-<div class="pl-card" id="pl-summary-card-year">
-    <div class="pl-card-title">
-        今年のサマリー（付与起算）
-        <?php if ( ! empty($summary['cycle_start']) ) : ?>
-        <span style="font-size:12px; font-weight:normal; color:#666; margin-left:8px;">
-            対象期間：<?php echo esc_html($summary['cycle_start']); ?> 〜 <?php echo esc_html($summary['cycle_end']); ?>
-        </span>
-        <?php endif; ?>
+        <!-- 左：現在有効期間内 -->
+        <div class="pl-summary-col">
+            <div class="pl-card-title">
+                有給サマリー（現在有効期間内）
+                <?php if ( ! empty($summary['cycle_start']) ) : ?>
+                <span style="font-size:12px; font-weight:normal; color:#666; margin-left:8px;">
+                    対象期間：<?php echo esc_html($summary['cycle_start']); ?> 〜 <?php echo esc_html($summary['cycle_end']); ?>
+                </span>
+                <?php endif; ?>
+            </div>
+            <div class="pl-summary-nums">
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-granted"><?php echo esc_html($summary['valid_granted']); ?></div>
+                    <div class="pl-num-label">付与日数（累計）</div>
+                </div>
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-consumed"><?php echo esc_html($summary['valid_consumed']); ?></div>
+                    <div class="pl-num-label">消化日数（累計）</div>
+                </div>
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-rate"><?php echo esc_html($summary['valid_rate']); ?>%</div>
+                    <div class="pl-num-label">消化率（累計）</div>
+                </div>
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-remaining"><?php echo esc_html($summary['valid_remaining']); ?></div>
+                    <div class="pl-num-label">残日数（累計）</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右：今年の消化状況（付与起算） -->
+        <div class="pl-summary-col">
+            <div class="pl-card-title">今年の消化状況（付与起算）</div>
+            <?php if ( empty($summary['cycle_start']) ) : ?>
+            <p class="pl-hint" style="margin:0;">付与記録がないため、今年の消化状況は表示できません。</p>
+            <?php else : ?>
+            <div class="pl-summary-nums">
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-year-consumed"><?php echo esc_html($summary['year_consumed']); ?></div>
+                    <div class="pl-num-label">今年の消化数</div>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+
     </div>
 
+    <!-- 下部：年5日アラート（全幅） -->
     <?php if ( ! empty($summary['year_alert']) ) : ?>
-    <div class="pl-notice pl-notice-warning" id="sum-year-alert" style="margin-bottom:1rem;">
+    <div class="pl-notice pl-notice-warning" id="sum-year-alert" style="margin-top:1rem; margin-bottom:0;">
         ⚠️ 年5日の取得義務に対し、今年の消化が <strong><?php echo esc_html($summary['year_consumed']); ?></strong> 日です。期限（<?php echo esc_html($summary['cycle_end']); ?>）まで3か月を切っています。計画的な取得をご案内ください。
     </div>
     <?php else : ?>
-    <div class="pl-notice pl-notice-warning" id="sum-year-alert" style="margin-bottom:1rem; display:none;"></div>
-    <?php endif; ?>
-
-    <?php if ( empty($summary['cycle_start']) ) : ?>
-    <p class="pl-hint" style="margin:0;">付与記録がないため、今年のサマリーは表示できません。</p>
-    <?php else : ?>
-    <div class="pl-summary-nums">
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-year-granted"><?php echo esc_html($summary['year_granted']); ?></div>
-            <div class="pl-num-label">今年の付与</div>
-        </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-year-consumed"><?php echo esc_html($summary['year_consumed']); ?></div>
-            <div class="pl-num-label">今年の消化</div>
-        </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-year-rate"><?php echo esc_html($summary['year_rate']); ?>%</div>
-            <div class="pl-num-label">今年の消化率</div>
-        </div>
-    </div>
+    <div class="pl-notice pl-notice-warning" id="sum-year-alert" style="margin-top:1rem; margin-bottom:0; display:none;"></div>
     <?php endif; ?>
 </div>
 
@@ -338,10 +337,8 @@ jQuery(document).ready(function($) {
             $('#sum-valid-rate').text(fmt(s.valid_rate) + '%');
 
             // ② 今年（付与起算）
-            $('#sum-year-granted').text(fmt(s.year_granted));
             $('#sum-year-consumed').text(fmt(s.year_consumed));
-            $('#sum-year-rate').text(fmt(s.year_rate) + '%');
-
+            
             // 年5日アラートの再描画
             var $alert = $('#sum-year-alert');
             if ($alert.length) {
