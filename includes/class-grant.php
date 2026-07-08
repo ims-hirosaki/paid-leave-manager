@@ -93,6 +93,17 @@ class PL_Grant {
         //     窓     = [基準日, 基準日 + 1年 − 1日]（例: 2026-05-08 → 2027-05-07）
         //     サイクル定義は get_current_cycle() に一元化
         // =====================================================
+        // ★ ① の対象期間 = 現在有効な付与が張る期間（最古の付与日 〜 最新の有効期限）
+        
+        $valid_period = $wpdb->get_row( $wpdb->prepare(
+            "SELECT MIN(grant_date) AS start, MAX(expiry_date) AS end
+             FROM {$wpdb->prefix}paidleave_grants
+             WHERE employee_code = %s AND is_expired = 0 AND expiry_date >= %s",
+            $employee_code, $today
+        ) );
+        $valid_start = $valid_period ? $valid_period->start : null;
+        $valid_end   = $valid_period ? $valid_period->end   : null;
+
         $cycle       = self::get_current_cycle( $employee_code );
         $cycle_start = $cycle ? $cycle['start'] : null;
         $cycle_end   = $cycle ? $cycle['end']   : null;
@@ -159,6 +170,8 @@ class PL_Grant {
             'valid_consumed'     => $valid_consumed,
             'valid_remaining'    => $total_remaining,
             'valid_rate'         => $valid_rate,
+            'valid_start'        => $valid_start,   // ★ 追加
+            'valid_end'          => $valid_end, 
             // ② 今年（付与起算）
             'cycle_start'        => $cycle_start,
             'cycle_end'          => $cycle_end,

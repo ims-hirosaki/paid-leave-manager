@@ -67,9 +67,9 @@ if ( $emp ) {
         <div class="pl-summary-col">
             <div class="pl-card-title">
                 有給サマリー（現在有効期間内）
-                <?php if ( ! empty($summary['cycle_start']) ) : ?>
+                <?php if ( ! empty($summary['valid_start']) ) : ?>
                 <span style="font-size:12px; font-weight:normal; color:#666; margin-left:8px;">
-                    対象期間：<?php echo esc_html($summary['cycle_start']); ?> 〜 <?php echo esc_html($summary['cycle_end']); ?>
+                    対象期間：<?php echo esc_html($summary['valid_start']); ?> 〜 <?php echo esc_html($summary['valid_end']); ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -338,7 +338,7 @@ jQuery(document).ready(function($) {
 
             // ② 今年（付与起算）
             $('#sum-year-consumed').text(fmt(s.year_consumed));
-            
+
             // 年5日アラートの再描画
             var $alert = $('#sum-year-alert');
             if ($alert.length) {
