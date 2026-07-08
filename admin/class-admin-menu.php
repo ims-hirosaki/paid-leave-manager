@@ -6,7 +6,7 @@ class PL_Admin_Menu {
     public function __construct() {
         add_action( 'admin_menu',            array( $this, 'register_menus' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-
+        add_action( 'admin_init',            array( $this, 'maybe_expire_grants' ) );
         // 常時有効なAJAXアクション
         $ajax_actions = array(
             'pl_rules_get'         => array( 'PL_Rules',       'ajax_get' ),
@@ -94,6 +94,19 @@ class PL_Admin_Menu {
             'requestsUrl'  => admin_url('admin.php?page=pl-requests'),
             'pendingCount' => $pending_count,
         ) );
+    }
+
+    /**
+     * 有給管理の画面を開いたときに、期限切れの付与を失効処理する。
+     * expire_old_grants() は「期限切れ・未失効・残ありのみ」を対象とする軽量UPDATEで、
+     * 追いついた後は0件更新になるため、毎回呼んでも実害はない。
+     */
+    public function maybe_expire_grants() {
+        if ( ! current_user_can( 'manage_options' ) ) return;
+        $page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+        if ( $page === 'paid-leave-manager' || strpos( $page, 'pl-' ) === 0 ) {
+            PL_Grant::expire_old_grants();
+        }
     }
 
     public function render_employee_list()   { include PL_DIR . 'admin/views/employee-list.php'; }
