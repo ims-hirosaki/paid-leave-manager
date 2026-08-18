@@ -36,6 +36,20 @@ class PL_Summary {
                 $code, $date_from, $date_to
             ) );
 
+            // 変更後（付与起算・共通ヘルパー参照）
+            // ★ 今年の消化（付与起算）— 全ページで「今年」を付与起算に統一。
+            //    サイクル定義は PL_Grant::get_current_cycle() に一元化。
+            $cycle              = PL_Grant::get_current_cycle( $code );
+            $consumed_this_year = 0.0;
+            if ( $cycle ) {
+                $consumed_this_year = (float) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COALESCE(SUM(consumed_days),0)
+                     FROM {$wpdb->prefix}paidleave_consumptions
+                     WHERE employee_code = %s AND consumed_date BETWEEN %s AND %s",
+                    $code, $cycle['start'], $cycle['end']
+                ) );
+            }
+
             $total_granted   = array_sum( array_column( (array) $grants, 'granted_days' ) );
             $total_remaining = (float) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COALESCE(SUM(remaining_days),0)
@@ -80,6 +94,7 @@ class PL_Summary {
                 'first_grant_date'    => $first_grant,
                 'total_granted'       => $total_granted,
                 'consumed'            => $consumed_in_period,
+                'consumed_this_year'  => $consumed_this_year,
                 'remaining'           => $total_remaining,
                 'rate'                => $rate,
                 'expiry_warning_days' => $expiry_warning_days,

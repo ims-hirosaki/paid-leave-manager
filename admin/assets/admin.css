@@ -4,17 +4,17 @@
 ===================================================== */
 
 :root {
-    --pl-primary:   #2563eb;
-    --pl-success:   #16a34a;
-    --pl-warning:   #d97706;
-    --pl-danger:    #dc2626;
-    --pl-bg:        #f8fafc;
-    --pl-border:    #e2e8f0;
-    --pl-text:      #1e293b;
-    --pl-muted:     #64748b;
-    --pl-card-bg:   #ffffff;
-    --pl-radius:    10px;
-    --pl-shadow:    0 1px 4px rgba(0,0,0,.08);
+    --pl-primary: #2563eb;
+    --pl-success: #16a34a;
+    --pl-warning: #d97706;
+    --pl-danger: #dc2626;
+    --pl-bg: #f8fafc;
+    --pl-border: #e2e8f0;
+    --pl-text: #1e293b;
+    --pl-muted: #64748b;
+    --pl-card-bg: #ffffff;
+    --pl-radius: 10px;
+    --pl-shadow: 0 1px 4px rgba(0, 0, 0, .08);
 }
 
 /* =====================================================
@@ -36,7 +36,11 @@
     margin-bottom: 1.5rem;
     color: var(--pl-text);
 }
-.pl-page-title .dashicons { color: var(--pl-primary); }
+
+.pl-page-title .dashicons {
+    color: var(--pl-primary);
+}
+
 .pl-back-link {
     font-size: .85rem;
     font-weight: 400;
@@ -44,7 +48,10 @@
     text-decoration: none;
     margin-left: 1rem;
 }
-.pl-back-link:hover { color: var(--pl-primary); }
+
+.pl-back-link:hover {
+    color: var(--pl-primary);
+}
 
 /* =====================================================
    カード
@@ -57,6 +64,7 @@
     padding: 1.25rem 1.5rem;
     margin-bottom: 1.25rem;
 }
+
 .pl-card-title {
     font-size: 1rem;
     font-weight: 700;
@@ -68,13 +76,34 @@
     align-items: center;
     gap: .5rem;
 }
-.pl-card-title-green  { border-bottom-color: var(--pl-success); color: var(--pl-success); }
-.pl-card-title-orange { border-bottom-color: var(--pl-warning); color: var(--pl-warning); }
-.pl-card-title-red    { border-bottom-color: var(--pl-danger);  color: var(--pl-danger);  }
 
-.pl-card-grant   { border-left: 4px solid var(--pl-success); }
-.pl-card-consume { border-left: 4px solid var(--pl-warning); }
-.pl-card-danger  { border-left: 4px solid var(--pl-danger); background: #fff5f5; }
+.pl-card-title-green {
+    border-bottom-color: var(--pl-success);
+    color: var(--pl-success);
+}
+
+.pl-card-title-orange {
+    border-bottom-color: var(--pl-warning);
+    color: var(--pl-warning);
+}
+
+.pl-card-title-red {
+    border-bottom-color: var(--pl-danger);
+    color: var(--pl-danger);
+}
+
+.pl-card-grant {
+    border-left: 4px solid var(--pl-success);
+}
+
+.pl-card-consume {
+    border-left: 4px solid var(--pl-warning);
+}
+
+.pl-card-danger {
+    border-left: 4px solid var(--pl-danger);
+    background: #fff5f5;
+}
 
 /* =====================================================
    フォーム要素
@@ -90,10 +119,11 @@
     height: 36px;
     box-sizing: border-box;
 }
+
 .pl-input:focus {
     outline: none;
     border-color: var(--pl-primary);
-    box-shadow: 0 0 0 2px rgba(37,99,235,.15);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .15);
 }
 
 .pl-select {
@@ -122,18 +152,38 @@
     margin-bottom: .75rem;
 }
 
-.pl-unit        { font-size: .9rem; color: var(--pl-muted); }
-.pl-hint        { font-size: .8rem; color: var(--pl-muted); margin-top: .3rem; }
-.pl-hint-inline { font-size: .8rem; color: var(--pl-muted); }
+.pl-unit {
+    font-size: .9rem;
+    color: var(--pl-muted);
+}
 
-.pl-input-unit { display: flex; align-items: center; gap: .5rem; }
+.pl-hint {
+    font-size: .8rem;
+    color: var(--pl-muted);
+    margin-top: .3rem;
+}
+
+.pl-hint-inline {
+    font-size: .8rem;
+    color: var(--pl-muted);
+}
+
+.pl-input-unit {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
 
 .pl-settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.25rem;
 }
-.pl-field { display: flex; flex-direction: column; }
+
+.pl-field {
+    display: flex;
+    flex-direction: column;
+}
 
 /* =====================================================
    ボタン
@@ -151,16 +201,50 @@
     transition: all .15s;
     text-decoration: none;
 }
-.pl-btn:disabled { opacity: .6; cursor: not-allowed; }
 
-.pl-btn-primary { background: var(--pl-primary); color: #fff; }
-.pl-btn-primary:hover:not(:disabled) { background: #1d4ed8; color: #fff; }
-.pl-btn-success { background: var(--pl-success); color: #fff; }
-.pl-btn-success:hover:not(:disabled) { background: #15803d; }
-.pl-btn-warning { background: var(--pl-warning); color: #fff; }
-.pl-btn-warning:hover:not(:disabled) { background: #b45309; }
-.pl-btn-secondary { background: #f1f5f9; color: var(--pl-text); border: 1px solid var(--pl-border); }
-.pl-btn-secondary:hover:not(:disabled) { background: #e2e8f0; color: var(--pl-text); }
+.pl-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.pl-btn-primary {
+    background: var(--pl-primary);
+    color: #fff;
+}
+
+.pl-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.pl-btn-success {
+    background: var(--pl-success);
+    color: #fff;
+}
+
+.pl-btn-success:hover:not(:disabled) {
+    background: #15803d;
+}
+
+.pl-btn-warning {
+    background: var(--pl-warning);
+    color: #fff;
+}
+
+.pl-btn-warning:hover:not(:disabled) {
+    background: #b45309;
+}
+
+.pl-btn-secondary {
+    background: #f1f5f9;
+    color: var(--pl-text);
+    border: 1px solid var(--pl-border);
+}
+
+.pl-btn-secondary:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: var(--pl-text);
+}
 
 .pl-btn-sm {
     display: inline-block;
@@ -174,9 +258,22 @@
     border: none;
     cursor: pointer;
 }
-.pl-btn-sm:hover { background: #1d4ed8; color: #fff; }
-.pl-btn-sm-secondary { background: #f1f5f9; color: var(--pl-text); border: 1px solid var(--pl-border); }
-.pl-btn-sm-secondary:hover { background: #e2e8f0; color: var(--pl-text); }
+
+.pl-btn-sm:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.pl-btn-sm-secondary {
+    background: #f1f5f9;
+    color: var(--pl-text);
+    border: 1px solid var(--pl-border);
+}
+
+.pl-btn-sm-secondary:hover {
+    background: #e2e8f0;
+    color: var(--pl-text);
+}
 
 .pl-form-actions {
     display: flex;
@@ -189,13 +286,16 @@
 /* =====================================================
    テーブル
 ===================================================== */
-.pl-table-wrap { overflow-x: auto; }
+.pl-table-wrap {
+    overflow-x: auto;
+}
 
 .pl-data-table {
     width: 100%;
     border-collapse: collapse;
     font-size: .875rem;
 }
+
 .pl-data-table th {
     background: #f8fafc;
     border-bottom: 2px solid var(--pl-border);
@@ -206,21 +306,50 @@
     color: var(--pl-muted);
     white-space: nowrap;
 }
+
 .pl-data-table td {
     padding: .65rem .9rem;
     border-bottom: 1px solid var(--pl-border);
     vertical-align: middle;
 }
-.pl-data-table tr:last-child td { border-bottom: none; }
-.pl-data-table tr:hover td { background: #f8fafc; }
 
-.pl-empty   { text-align: center; color: var(--pl-muted); padding: 2rem !important; font-size: .9rem; }
-.pl-loading { color: var(--pl-muted); font-style: italic; }
+.pl-data-table tr:last-child td {
+    border-bottom: none;
+}
 
-.pl-row-expired td { opacity: .6; background: #fafafa; }
-.pl-row-warn    td { background: #fffbeb; }
-.pl-row-danger  td { background: #fef2f2; }
-.pl-summary-row td { font-weight: 600; background: #f0f9ff; }
+.pl-data-table tr:hover td {
+    background: #f8fafc;
+}
+
+.pl-empty {
+    text-align: center;
+    color: var(--pl-muted);
+    padding: 2rem !important;
+    font-size: .9rem;
+}
+
+.pl-loading {
+    color: var(--pl-muted);
+    font-style: italic;
+}
+
+.pl-row-expired td {
+    opacity: .6;
+    background: #fafafa;
+}
+
+.pl-row-warn td {
+    background: #fffbeb;
+}
+
+.pl-row-danger td {
+    background: #fef2f2;
+}
+
+.pl-summary-row td {
+    font-weight: 600;
+    background: #f0f9ff;
+}
 
 /* =====================================================
    ルール設定テーブル
@@ -230,6 +359,7 @@
     border-collapse: collapse;
     font-size: .875rem;
 }
+
 .pl-rules-table th {
     background: #f8fafc;
     border: 1px solid var(--pl-border);
@@ -239,11 +369,13 @@
     font-weight: 700;
     color: var(--pl-muted);
 }
+
 .pl-rules-table td {
     border: 1px solid var(--pl-border);
     padding: .35rem .5rem;
     text-align: center;
 }
+
 .pl-tenure-label {
     text-align: left !important;
     padding-left: .75rem !important;
@@ -251,6 +383,7 @@
     white-space: nowrap;
     background: #f8fafc;
 }
+
 .pl-rule-input {
     width: 65px;
     text-align: center;
@@ -259,10 +392,11 @@
     padding: .3rem;
     font-size: .875rem;
 }
+
 .pl-rule-input:focus {
     outline: none;
     border-color: var(--pl-primary);
-    box-shadow: 0 0 0 2px rgba(37,99,235,.12);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
 }
 
 /* =====================================================
@@ -275,14 +409,29 @@
     font-size: .75rem;
     font-weight: 700;
 }
-.pl-badge-green  { background: #dcfce7; color: #16a34a; }
-.pl-badge-orange { background: #fef3c7; color: #d97706; }
-.pl-badge-red    { background: #fee2e2; color: #dc2626; }
+
+.pl-badge-green {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.pl-badge-orange {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.pl-badge-red {
+    background: #fee2e2;
+    color: #dc2626;
+}
 
 /* =====================================================
    プログレスバー
 ===================================================== */
-.pl-bar-wrap { margin-top: 1rem; }
+.pl-bar-wrap {
+    margin-top: 1rem;
+}
+
 .pl-bar-label {
     display: flex;
     justify-content: space-between;
@@ -290,21 +439,33 @@
     color: var(--pl-muted);
     margin-bottom: .4rem;
 }
+
 .pl-progress-bar {
     height: 10px;
     background: #e2e8f0;
     border-radius: 999px;
     overflow: hidden;
 }
-.pl-progress-bar-lg { height: 14px; }
+
+.pl-progress-bar-lg {
+    height: 14px;
+}
+
 .pl-progress-fill {
     height: 100%;
     background: var(--pl-primary);
     border-radius: 999px;
     transition: width .4s ease;
 }
-.pl-progress-warn { background: var(--pl-warning); }
-.pl-progress-done { background: var(--pl-success); }
+
+.pl-progress-warn {
+    background: var(--pl-warning);
+}
+
+.pl-progress-done {
+    background: var(--pl-success);
+}
+
 .pl-bar-rate {
     text-align: right;
     font-size: .82rem;
@@ -320,6 +481,24 @@
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
     gap: 1rem;
 }
+
+.pl-summary-split {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.pl-summary-col {
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .pl-summary-split {
+        grid-template-columns: 1fr;
+    }
+}
+
 .pl-summary-num {
     background: #f8fafc;
     border: 1px solid var(--pl-border);
@@ -327,12 +506,14 @@
     padding: .9rem 1rem;
     text-align: center;
 }
+
 .pl-num-val {
     font-size: 1.6rem;
     font-weight: 800;
     color: var(--pl-primary);
     line-height: 1;
 }
+
 .pl-num-label {
     font-size: .78rem;
     color: var(--pl-muted);
@@ -348,8 +529,15 @@
     gap: .4rem .75rem;
     font-size: .9rem;
 }
-.pl-info-key { color: var(--pl-muted); font-weight: 600; }
-.pl-info-val { color: var(--pl-text); }
+
+.pl-info-key {
+    color: var(--pl-muted);
+    font-weight: 600;
+}
+
+.pl-info-val {
+    color: var(--pl-text);
+}
 
 /* =====================================================
    フィルターバー
@@ -361,13 +549,19 @@
     margin-bottom: 1rem;
     flex-wrap: wrap;
 }
-.pl-filter-result { color: var(--pl-muted); font-size: .85rem; }
+
+.pl-filter-result {
+    color: var(--pl-muted);
+    font-size: .85rem;
+}
+
 .pl-filter-row {
     display: flex;
     align-items: center;
     gap: 1.25rem;
     flex-wrap: wrap;
 }
+
 .pl-search-row {
     display: flex;
     align-items: center;
@@ -377,7 +571,12 @@
 /* =====================================================
    チェックボックス・ラジオ
 ===================================================== */
-.pl-checkboxes { display: flex; flex-wrap: wrap; gap: .5rem; }
+.pl-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
 .pl-checkbox-label {
     display: flex;
     align-items: center;
@@ -390,10 +589,20 @@
     background: #fff;
     transition: all .12s;
 }
-.pl-checkbox-label:hover { border-color: var(--pl-primary); }
-.pl-checkbox-label input { margin: 0; }
 
-.pl-radio-group { display: flex; gap: 1rem; }
+.pl-checkbox-label:hover {
+    border-color: var(--pl-primary);
+}
+
+.pl-checkbox-label input {
+    margin: 0;
+}
+
+.pl-radio-group {
+    display: flex;
+    gap: 1rem;
+}
+
 .pl-radio-label {
     display: flex;
     align-items: center;
@@ -405,26 +614,47 @@
 /* =====================================================
    トグルスイッチ
 ===================================================== */
-.pl-toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
-.pl-toggle input { opacity: 0; width: 0; height: 0; }
+.pl-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.pl-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
 .pl-toggle-slider {
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     background: #cbd5e1;
     border-radius: 24px;
     cursor: pointer;
     transition: .2s;
 }
+
 .pl-toggle-slider::before {
     content: '';
     position: absolute;
-    width: 18px; height: 18px;
-    left: 3px; top: 3px;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
     background: #fff;
     border-radius: 50%;
     transition: .2s;
 }
-.pl-toggle input:checked + .pl-toggle-slider { background: var(--pl-primary); }
-.pl-toggle input:checked + .pl-toggle-slider::before { transform: translateX(20px); }
+
+.pl-toggle input:checked+.pl-toggle-slider {
+    background: var(--pl-primary);
+}
+
+.pl-toggle input:checked+.pl-toggle-slider::before {
+    transform: translateX(20px);
+}
 
 /* =====================================================
    付与バッジ
@@ -438,7 +668,10 @@
     font-size: .875rem;
     font-weight: 600;
 }
-.pl-grant-info { margin-bottom: .75rem; }
+
+.pl-grant-info {
+    margin-bottom: .75rem;
+}
 
 /* =====================================================
    ドロワー
@@ -450,14 +683,28 @@
     justify-content: space-between;
     align-items: center;
 }
-.pl-drawer-toggle:hover { opacity: .8; }
-.pl-drawer-icon { font-size: .85rem; color: var(--pl-muted); }
+
+.pl-drawer-toggle:hover {
+    opacity: .8;
+}
+
+.pl-drawer-icon {
+    font-size: .85rem;
+    color: var(--pl-muted);
+}
 
 /* =====================================================
    消化率の色
 ===================================================== */
-.pl-rate-low  { color: var(--pl-danger);  font-weight: 700; }
-.pl-rate-high { color: var(--pl-success); font-weight: 700; }
+.pl-rate-low {
+    color: var(--pl-danger);
+    font-weight: 700;
+}
+
+.pl-rate-high {
+    color: var(--pl-success);
+    font-weight: 700;
+}
 
 /* =====================================================
    セルスタイル
@@ -479,7 +726,12 @@
     font-size: .9rem;
     margin-bottom: 1rem;
 }
-.pl-notice-warning { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+
+.pl-notice-warning {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
 
 /* =====================================================
    トースト
@@ -500,9 +752,19 @@
     transition: all .25s ease;
     pointer-events: none;
 }
-#plToast.show    { opacity: 1; transform: translateY(0); }
-#plToast.success { background: var(--pl-success); }
-#plToast.error   { background: var(--pl-danger); }
+
+#plToast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#plToast.success {
+    background: var(--pl-success);
+}
+
+#plToast.error {
+    background: var(--pl-danger);
+}
 
 /* =====================================================
    タブ（単日 / 期間一括）
@@ -513,6 +775,7 @@
     border-bottom: 2px solid var(--pl-border);
     margin-bottom: 0;
 }
+
 .pl-tab {
     padding: .5rem 1.25rem;
     font-size: .875rem;
@@ -525,9 +788,19 @@
     color: var(--pl-muted);
     transition: all .15s;
 }
-.pl-tab:hover  { color: var(--pl-primary); }
-.pl-tab.active { color: var(--pl-primary); border-bottom-color: var(--pl-primary); }
-.pl-tab-pane   { padding-top: .25rem; }
+
+.pl-tab:hover {
+    color: var(--pl-primary);
+}
+
+.pl-tab.active {
+    color: var(--pl-primary);
+    border-bottom-color: var(--pl-primary);
+}
+
+.pl-tab-pane {
+    padding-top: .25rem;
+}
 
 /* =====================================================
    期間プレビュー
@@ -541,6 +814,7 @@
     width: 100%;
     margin-top: .5rem;
 }
+
 .pl-date-list {
     margin-top: .5rem;
     color: var(--pl-muted);
@@ -557,12 +831,25 @@
     gap: 1.25rem;
     align-items: start;
 }
-.pl-two-col > div:only-child { grid-column: 1 / -1; }
-.pl-card-full  { height: 100%; box-sizing: border-box; }
-.pl-btn-block  { width: 100%; justify-content: center; }
+
+.pl-two-col>div:only-child {
+    grid-column: 1 / -1;
+}
+
+.pl-card-full {
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.pl-btn-block {
+    width: 100%;
+    justify-content: center;
+}
 
 @media (max-width: 900px) {
-    .pl-two-col { grid-template-columns: 1fr; }
+    .pl-two-col {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* =====================================================
@@ -575,6 +862,7 @@
     flex-wrap: wrap;
     margin-bottom: 1rem;
 }
+
 .pl-req-count {
     font-size: .85rem;
     color: var(--pl-muted);
@@ -586,9 +874,15 @@
     background: var(--pl-success) !important;
     margin-right: .3rem;
 }
-.pl-req-approve:hover { background: #15803d !important; }
+
+.pl-req-approve:hover {
+    background: #15803d !important;
+}
 
 .pl-req-reject {
     background: var(--pl-danger) !important;
 }
-.pl-req-reject:hover { background: #b91c1c !important; }
+
+.pl-req-reject:hover {
+    background: #b91c1c !important;
+}

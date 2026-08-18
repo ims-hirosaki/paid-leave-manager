@@ -32,6 +32,7 @@ require_once PL_DIR . 'includes/class-summary.php';
 require_once PL_DIR . 'includes/class-request.php';
 require_once PL_DIR . 'includes/class-mat-bridge.php';
 require_once PL_DIR . 'includes/class-data-reset.php'; // ★ テストデータ削除
+require_once PL_DIR . 'includes/class-import.php'; 
 require_once PL_DIR . 'admin/class-admin-menu.php';
 
 register_activation_hook( __FILE__, array( 'PL_DB_Install', 'activate' ) );
@@ -46,6 +47,7 @@ function pl_init() {
 
 if ( is_admin() ) {
     new PL_Admin_Menu();
+    PL_Import::init();   
 }
 
 new PL_Mat_Bridge();

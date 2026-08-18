@@ -6,7 +6,7 @@ class PL_Admin_Menu {
     public function __construct() {
         add_action( 'admin_menu',            array( $this, 'register_menus' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-
+        add_action( 'admin_init',            array( $this, 'maybe_expire_grants' ) );
         // 常時有効なAJAXアクション
         $ajax_actions = array(
             'pl_rules_get'         => array( 'PL_Rules',       'ajax_get' ),
@@ -41,7 +41,7 @@ class PL_Admin_Menu {
             '有給管理システム', '有給管理', 'manage_options',
             'paid-leave-manager',
             array( $this, 'render_employee_list' ),
-            'dashicons-calendar-alt', 31
+            'dashicons-palmtree', 31
         );
         add_submenu_page( 'paid-leave-manager', '従業員一覧',       '従業員一覧',       'manage_options', 'paid-leave-manager',  array( $this, 'render_employee_list' ) );
         add_submenu_page( 'paid-leave-manager', '付与・消化登録',   '付与・消化登録',   'manage_options', 'pl-grant-register',   array( $this, 'render_grant_register' ) );
@@ -49,7 +49,8 @@ class PL_Admin_Menu {
         add_submenu_page( 'paid-leave-manager', '有給ルール設定',   '有給ルール設定',   'manage_options', 'pl-rules',            array( $this, 'render_rules' ) );
         // ★ テストデータ削除
         add_submenu_page( 'paid-leave-manager', 'テストデータ削除', 'テストデータ削除', 'manage_options', 'pl-data-reset',       array( $this, 'render_data_reset' ) );
-
+        // ★ CSVインポート
+        add_submenu_page( 'paid-leave-manager', '有給インポート', '有給インポート', 'manage_options', 'pl-import', array( $this, 'render_import' ) );
         // ★ PL_SHOW_REQUESTS_PAGE が true の時だけメニューに表示
         if ( PL_SHOW_REQUESTS_PAGE ) {
             add_submenu_page( 'paid-leave-manager', '有給申請管理', '有給申請管理', 'manage_options', 'pl-requests', array( $this, 'render_requests' ) );
@@ -65,7 +66,8 @@ class PL_Admin_Menu {
         $pl_pages = array(
             'paid-leave-manager', 'pl-grant-register',
             'pl-employee-detail', 'pl-summary', 'pl-rules',
-            'pl-data-reset', // ★ 追加
+            'pl-data-reset',
+            'pl-import', 
         );
 
         // ★ 有効な場合のみ pl-requests をロード対象に追加
@@ -94,6 +96,19 @@ class PL_Admin_Menu {
         ) );
     }
 
+    /**
+     * 有給管理の画面を開いたときに、期限切れの付与を失効処理する。
+     * expire_old_grants() は「期限切れ・未失効・残ありのみ」を対象とする軽量UPDATEで、
+     * 追いついた後は0件更新になるため、毎回呼んでも実害はない。
+     */
+    public function maybe_expire_grants() {
+        if ( ! current_user_can( 'manage_options' ) ) return;
+        $page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+        if ( $page === 'paid-leave-manager' || strpos( $page, 'pl-' ) === 0 ) {
+            PL_Grant::expire_old_grants();
+        }
+    }
+
     public function render_employee_list()   { include PL_DIR . 'admin/views/employee-list.php'; }
     public function render_grant_register()  { include PL_DIR . 'admin/views/grant-register.php'; }
     public function render_employee_detail() { include PL_DIR . 'admin/views/employee-detail.php'; }
@@ -103,4 +118,5 @@ class PL_Admin_Menu {
 
     // ★ requests.php はファイルとして残しておく（定数がfalseの間は呼ばれない）
     public function render_requests()        { include PL_DIR . 'admin/views/requests.php'; }
+    public function render_import()          { include PL_DIR . 'admin/views/import.php'; } // ★ CSVインポート
 }

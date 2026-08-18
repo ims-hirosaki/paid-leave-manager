@@ -1,4 +1,17 @@
 <?php if ( ! defined('ABSPATH') ) exit;
+if ( ! function_exists( 'pl_format_tenure' ) ) {
+    /** 勤続月数(int) を「〇年〇ヶ月」表記に変換 */
+    function pl_format_tenure( $months ) {
+        $months = (int) $months;
+        if ( $months <= 0 ) return '—';
+        $y = intdiv( $months, 12 );
+        $m = $months % 12;
+        if ( $y > 0 && $m > 0 ) return $y . '年' . $m . 'ヶ月';
+        if ( $y > 0 )           return $y . '年';
+        return $m . 'ヶ月';
+    }
+}
+
 $code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
 $emp  = $code ? PL_Employee_Bridge::get_by_code( $code ) : null;
 
@@ -46,36 +59,64 @@ if ( $emp ) {
     </div>
 </div>
 
-<!-- ★ 消化サマリー（IDを付与してJS側から書き換え可能にする） -->
+<!-- ★ 消化サマリー（有給サマリー ＋ 今年の消化状況 を統合） -->
 <div class="pl-card" id="pl-summary-card">
-    <div class="pl-card-title">消化サマリー</div>
-    <div class="pl-summary-nums">
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-remaining"><?php echo esc_html($summary['total_remaining']); ?></div>
-            <div class="pl-num-label">残日数（有効）</div>
+    <div class="pl-summary-split">
+
+        <!-- 左：現在有効期間内 -->
+        <div class="pl-summary-col">
+            <div class="pl-card-title">
+                有給サマリー（現在有効期間内）
+                <?php if ( ! empty($summary['valid_start']) ) : ?>
+                <span style="font-size:12px; font-weight:normal; color:#666; margin-left:8px;">
+                    対象期間：<?php echo esc_html($summary['valid_start']); ?> 〜 <?php echo esc_html($summary['valid_end']); ?>
+                </span>
+                <?php endif; ?>
+            </div>
+            <div class="pl-summary-nums">
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-granted"><?php echo esc_html($summary['valid_granted']); ?></div>
+                    <div class="pl-num-label">付与日数（累計）</div>
+                </div>
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-consumed"><?php echo esc_html($summary['valid_consumed']); ?></div>
+                    <div class="pl-num-label">消化日数（累計）</div>
+                </div>
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-rate"><?php echo esc_html($summary['valid_rate']); ?>%</div>
+                    <div class="pl-num-label">消化率（累計）</div>
+                </div>
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-valid-remaining"><?php echo esc_html($summary['valid_remaining']); ?></div>
+                    <div class="pl-num-label">残日数（累計）</div>
+                </div>
+            </div>
         </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-consumed"><?php echo esc_html($summary['total_consumed']); ?></div>
-            <div class="pl-num-label">消化日数（累計）</div>
+
+        <!-- 右：今年の消化状況（付与起算） -->
+        <div class="pl-summary-col">
+            <div class="pl-card-title">今年の消化状況（付与起算）</div>
+            <?php if ( empty($summary['cycle_start']) ) : ?>
+            <p class="pl-hint" style="margin:0;">付与記録がないため、今年の消化状況は表示できません。</p>
+            <?php else : ?>
+            <div class="pl-summary-nums">
+                <div class="pl-summary-num">
+                    <div class="pl-num-val" id="sum-year-consumed"><?php echo esc_html($summary['year_consumed']); ?></div>
+                    <div class="pl-num-label">今年の消化数</div>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-this-year"><?php echo esc_html($summary['consumed_this_year']); ?></div>
-            <div class="pl-num-label">今年の消化</div>
-        </div>
-        <div class="pl-summary-num">
-            <div class="pl-num-val" id="sum-rate"><?php echo esc_html($summary['consumption_rate']); ?>%</div>
-            <div class="pl-num-label">消化率</div>
-        </div>
+
     </div>
-    <?php if ( $summary['total_granted'] > 0 ) : ?>
-    <div class="pl-bar-wrap" style="margin-top:1rem;">
-        <div class="pl-progress-bar pl-progress-bar-lg">
-            <?php $rate = $summary['consumption_rate']; ?>
-            <div id="sum-progress-fill" class="pl-progress-fill <?php echo $rate >= 100 ? 'pl-progress-done' : ($rate >= 80 ? '' : 'pl-progress-warn'); ?>"
-                 style="width:<?php echo min(100, $rate); ?>%"></div>
-        </div>
-        <div class="pl-bar-rate"><span id="sum-rate-bar"><?php echo esc_html($rate); ?></span>% 消化済み</div>
+
+    <!-- 下部：年5日アラート（全幅） -->
+    <?php if ( ! empty($summary['year_alert']) ) : ?>
+    <div class="pl-notice pl-notice-warning" id="sum-year-alert" style="margin-top:1rem; margin-bottom:0;">
+        ⚠️ 年5日の取得義務に対し、今年の消化が <strong><?php echo esc_html($summary['year_consumed']); ?></strong> 日です。期限（<?php echo esc_html($summary['cycle_end']); ?>）まで3か月を切っています。計画的な取得をご案内ください。
     </div>
+    <?php else : ?>
+    <div class="pl-notice pl-notice-warning" id="sum-year-alert" style="margin-top:1rem; margin-bottom:0; display:none;"></div>
     <?php endif; ?>
 </div>
 
@@ -188,12 +229,12 @@ if ( $emp ) {
     <?php else : ?>
     <div class="pl-table-wrap">
     <table class="pl-data-table">
-        <thead><tr><th>付与日</th><th>勤続月数</th><th>週勤務</th><th>付与日数</th><th>残日数</th><th>有効期限</th><th>状態</th></tr></thead>
+        <thead><tr><th>付与日</th><th>勤続年数</th><th>週勤務</th><th>付与日数</th><th>残日数</th><th>有効期限</th><th>状態</th></tr></thead>
         <tbody>
         <?php foreach ( $recent as $g ) : ?>
         <tr>
             <td><?php echo esc_html($g->grant_date); ?></td>
-            <td><?php echo (int)$g->tenure_months; ?> ヶ月</td>
+            <td><?php echo esc_html( pl_format_tenure( $g->tenure_months ) ); ?></td>
             <td>週<?php echo (int)($g->weekly_work_days_at_grant ?? 5); ?>勤務</td>
             <td><?php echo esc_html($g->granted_days); ?> 日</td>
             <td><strong><?php echo esc_html($g->remaining_days); ?> 日</strong></td>
@@ -217,7 +258,7 @@ if ( $emp ) {
         <?php foreach ( $all_grants as $g ) : ?>
         <tr>
             <td><?php echo esc_html($g->grant_date); ?></td>
-            <td><?php echo (int)$g->tenure_months; ?> ヶ月</td>
+            <td><?php echo esc_html( pl_format_tenure( $g->tenure_months ) ); ?></td>
             <td>週<?php echo (int)($g->weekly_work_days_at_grant ?? 5); ?>勤務</td>
             <td><?php echo esc_html($g->granted_days); ?> 日</td>
             <td><strong><?php echo esc_html($g->remaining_days); ?> 日</strong></td>
@@ -289,19 +330,28 @@ jQuery(document).ready(function($) {
                 return isNaN(n) ? '0' : n.toFixed(1).replace(/\.0$/, '');
             }
 
-            $('#sum-remaining').text(fmt(s.total_remaining));
-            $('#sum-consumed').text(fmt(s.total_consumed));
-            $('#sum-this-year').text(fmt(s.consumed_this_year));
-            $('#sum-rate').text(s.consumption_rate + '%');
-            $('#sum-rate-bar').text(s.consumption_rate);
+            // ① 現在有効期間内
+            $('#sum-valid-granted').text(fmt(s.valid_granted));
+            $('#sum-valid-consumed').text(fmt(s.valid_consumed));
+            $('#sum-valid-remaining').text(fmt(s.valid_remaining));
+            $('#sum-valid-rate').text(fmt(s.valid_rate) + '%');
 
-            // プログレスバーの幅・色を更新
-            var r = parseFloat(s.consumption_rate);
-            var w = Math.min(100, r);
-            $('#sum-progress-fill')
-                .css('width', w + '%')
-                .removeClass('pl-progress-warn pl-progress-done')
-                .addClass(r >= 100 ? 'pl-progress-done' : (r >= 80 ? '' : 'pl-progress-warn'));
+            // ② 今年（付与起算）
+            $('#sum-year-consumed').text(fmt(s.year_consumed));
+
+            // 年5日アラートの再描画
+            var $alert = $('#sum-year-alert');
+            if ($alert.length) {
+                if (s.year_alert) {
+                    $alert.html(
+                        '⚠️ 年5日の取得義務に対し、今年の消化が <strong>' + fmt(s.year_consumed) +
+                        '</strong> 日です。期限（' + (s.cycle_end || '') +
+                        '）まで3か月を切っています。計画的な取得をご案内ください。'
+                    ).show();
+                } else {
+                    $alert.hide().empty();
+                }
+            }
         });
     }
 
@@ -408,20 +458,6 @@ jQuery(document).ready(function($) {
                 .text(currentAction === 'approve' ? '受理し消化登録をする' : '却下する');
             alert('通信エラーが発生しました。');
         });
-    });
-
-    // モーダル：キャンセル
-    $('#plDetailReqModalCancel').on('click', function() {
-        $('#plDetailReqModal').hide();
-    });
-
-    // ドロワートグル
-    $('.pl-drawer-toggle').on('click', function() {
-        var id      = $(this).attr('id').replace('Toggle', 'Drawer');
-        var $drawer = $('#' + id);
-        var $icon   = $(this).find('.pl-drawer-icon');
-        $drawer.slideToggle(200);
-        $icon.text($drawer.is(':hidden') ? '▼' : '▲');
     });
 });
 </script>
