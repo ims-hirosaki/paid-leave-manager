@@ -76,7 +76,7 @@ class PL_Import {
     // =====================================================
     public static function ajax_preview() {
         check_ajax_referer( 'pl_import_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'access_custom_plugins' ) ) {
             wp_send_json_error( array( 'message' => '権限がありません。' ) );
         }
         $tmp = self::validate_upload();
@@ -102,7 +102,7 @@ class PL_Import {
     // =====================================================
     public static function ajax_execute() {
         check_ajax_referer( 'pl_import_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) {
             wp_send_json_error( array( 'message' => '権限がありません。' ) );
         }
 
@@ -262,7 +262,7 @@ class PL_Import {
     // =====================================================
     public static function ajax_consume_preview() {
         check_ajax_referer( 'pl_import_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'access_custom_plugins' ) ) {
             wp_send_json_error( array( 'message' => '権限がありません。' ) );
         }
         $tmp = self::validate_upload();
@@ -293,7 +293,7 @@ class PL_Import {
     // =====================================================
     public static function ajax_consume_execute() {
         check_ajax_referer( 'pl_import_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) {
             wp_send_json_error( array( 'message' => '権限がありません。' ) );
         }
 
