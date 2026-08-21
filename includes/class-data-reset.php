@@ -128,7 +128,7 @@ class PL_Data_Reset {
      */
     public static function ajax_get_counts() {
         check_ajax_referer( 'pl_reset_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die( -1 );
+        if ( ! current_user_can( 'manage_custom_plugin_settings' ) ) wp_die( -1 );
 
         $target = sanitize_text_field( $_POST['target'] ?? 'employee' );
 
@@ -169,7 +169,7 @@ class PL_Data_Reset {
      */
     public static function ajax_execute() {
         check_ajax_referer( 'pl_reset_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die( -1 );
+        if ( ! current_user_can( 'manage_custom_plugin_settings' ) ) wp_die( -1 );
 
         $target = sanitize_text_field( $_POST['target'] ?? 'employee' );
 

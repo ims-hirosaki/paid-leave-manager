@@ -289,7 +289,7 @@ class PL_Request {
      */
     public static function ajax_get_list() {
         check_ajax_referer( 'pl_request_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( '権限がありません' );
+        if ( ! current_user_can( 'access_custom_plugins' ) ) wp_send_json_error( '権限がありません' );
 
         $args   = array(
             'status'    => sanitize_text_field( $_POST['status']    ?? '' ),
@@ -324,7 +324,7 @@ class PL_Request {
      */
     public static function ajax_approve() {
         check_ajax_referer( 'pl_request_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( '権限がありません' );
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) wp_send_json_error( '権限がありません' );
 
         $id         = (int) ( $_POST['request_id'] ?? 0 );
         $admin_note = sanitize_textarea_field( $_POST['admin_note'] ?? '' );
@@ -351,7 +351,7 @@ class PL_Request {
      */
     public static function ajax_reject() {
         check_ajax_referer( 'pl_request_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( '権限がありません' );
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) wp_send_json_error( '権限がありません' );
 
         $id         = (int) ( $_POST['request_id'] ?? 0 );
         $admin_note = sanitize_textarea_field( $_POST['admin_note'] ?? '' );

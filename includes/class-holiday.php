@@ -115,7 +115,7 @@ class PL_Holiday {
 
     public static function ajax_fetch() {
         check_ajax_referer( 'pl_rules_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'manage_custom_plugin_settings' ) ) wp_die(-1);
 
         $count = self::fetch_and_cache();
         if ( $count !== false ) {

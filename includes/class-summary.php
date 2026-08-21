@@ -110,7 +110,7 @@ class PL_Summary {
 
     public static function ajax_get() {
         check_ajax_referer( 'pl_summary_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'access_custom_plugins' ) ) wp_die(-1);
 
         $date_from      = sanitize_text_field( $_POST['date_from'] ?? date('Y-01-01') );
         $date_to        = sanitize_text_field( $_POST['date_to']   ?? date('Y-12-31') );

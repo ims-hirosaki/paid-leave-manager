@@ -171,7 +171,7 @@ class PL_Consumption {
 
     public static function ajax_check() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'access_custom_plugins' ) ) wp_die(-1);
 
         $code  = sanitize_text_field( $_POST['employee_code']  ?? '' );
         $date  = sanitize_text_field( $_POST['consume_date']   ?? date('Y-m-d') );
@@ -187,7 +187,7 @@ class PL_Consumption {
 
     public static function ajax_execute() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) wp_die(-1);
 
         $code      = sanitize_text_field( $_POST['employee_code'] ?? '' );
         $mode      = sanitize_text_field( $_POST['mode']          ?? 'single' );
