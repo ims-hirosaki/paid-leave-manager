@@ -165,7 +165,7 @@ class PL_Rules {
 
     public static function ajax_get() {
         check_ajax_referer( 'pl_rules_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'manage_custom_plugin_settings' ) ) wp_die(-1);
 
         wp_send_json_success( array(
             'matrix'   => self::get_rules_matrix(),
@@ -175,7 +175,7 @@ class PL_Rules {
 
     public static function ajax_save() {
         check_ajax_referer( 'pl_rules_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'manage_custom_plugin_settings' ) ) wp_die(-1);
 
         $effective_date = sanitize_text_field( $_POST['effective_date'] ?? date('Y-m-d') );
         $rules_data     = $_POST['rules'] ?? array();

@@ -229,7 +229,7 @@ class PL_Grant {
 
     public static function ajax_check() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'access_custom_plugins' ) ) wp_die(-1);
 
         $code = sanitize_text_field( $_POST['employee_code'] ?? '' );
         if ( ! $code ) wp_send_json_error( array( 'message' => '社員コードが必要です' ) );
@@ -249,7 +249,7 @@ class PL_Grant {
 
     public static function ajax_execute() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_die(-1);
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) wp_die(-1);
 
         $code           = sanitize_text_field( $_POST['employee_code'] ?? '' );
         $tenure_months  = (int) ( $_POST['tenure_months'] ?? 0 );
@@ -277,7 +277,7 @@ class PL_Grant {
     // ★ 個人管理ページ用サマリー再取得 AJAX
     public static function ajax_get_summary_for_employee() {
         check_ajax_referer( 'pl_grant_nonce', 'nonce' );
-        if ( ! current_user_can( 'manage_options' ) ) wp_send_json_error( '権限がありません' );
+        if ( ! current_user_can( 'access_custom_plugins' ) ) wp_send_json_error( '権限がありません' );
 
         $code = sanitize_text_field( $_POST['employee_code'] ?? '' );
         if ( ! $code ) wp_send_json_error( array( 'message' => '社員コードが必要です' ) );

@@ -38,26 +38,26 @@ class PL_Admin_Menu {
 
     public function register_menus() {
         add_menu_page(
-            '有給管理システム', '有給管理', 'manage_options',
+            '有給管理システム', '有給管理', 'access_custom_plugins',
             'paid-leave-manager',
             array( $this, 'render_employee_list' ),
             'dashicons-palmtree', 31
         );
-        add_submenu_page( 'paid-leave-manager', '従業員一覧',       '従業員一覧',       'manage_options', 'paid-leave-manager',  array( $this, 'render_employee_list' ) );
-        add_submenu_page( 'paid-leave-manager', '付与・消化登録',   '付与・消化登録',   'manage_options', 'pl-grant-register',   array( $this, 'render_grant_register' ) );
-        add_submenu_page( 'paid-leave-manager', '集計表',           '集計表',           'manage_options', 'pl-summary',          array( $this, 'render_summary' ) );
-        add_submenu_page( 'paid-leave-manager', '有給ルール設定',   '有給ルール設定',   'manage_options', 'pl-rules',            array( $this, 'render_rules' ) );
+        add_submenu_page( 'paid-leave-manager', '従業員一覧',       '従業員一覧',       'access_custom_plugins', 'paid-leave-manager',  array( $this, 'render_employee_list' ) );
+        add_submenu_page( 'paid-leave-manager', '付与・消化登録',   '付与・消化登録',   'access_custom_plugins', 'pl-grant-register',   array( $this, 'render_grant_register' ) );
+        add_submenu_page( 'paid-leave-manager', '集計表',           '集計表',           'access_custom_plugins', 'pl-summary',          array( $this, 'render_summary' ) );
+        add_submenu_page( 'paid-leave-manager', '有給ルール設定',   '有給ルール設定',   'manage_custom_plugin_settings', 'pl-rules', array( $this, 'render_rules' ) );
         // ★ テストデータ削除
-        add_submenu_page( 'paid-leave-manager', 'テストデータ削除', 'テストデータ削除', 'manage_options', 'pl-data-reset',       array( $this, 'render_data_reset' ) );
+        add_submenu_page( 'paid-leave-manager', 'テストデータ削除', 'テストデータ削除', 'manage_custom_plugin_settings', 'pl-data-reset', array( $this, 'render_data_reset' ) );
         // ★ CSVインポート
-        add_submenu_page( 'paid-leave-manager', '有給インポート', '有給インポート', 'manage_options', 'pl-import', array( $this, 'render_import' ) );
+        add_submenu_page( 'paid-leave-manager', '有給インポート', '有給インポート', 'access_custom_plugins', 'pl-import', array( $this, 'render_import' ) );
         // ★ PL_SHOW_REQUESTS_PAGE が true の時だけメニューに表示
         if ( PL_SHOW_REQUESTS_PAGE ) {
-            add_submenu_page( 'paid-leave-manager', '有給申請管理', '有給申請管理', 'manage_options', 'pl-requests', array( $this, 'render_requests' ) );
+            add_submenu_page( 'paid-leave-manager', '有給申請管理', '有給申請管理', 'access_custom_plugins', 'pl-requests', array( $this, 'render_requests' ) );
         }
 
         // 個人管理はメニュー非表示（一覧の「詳細」ボタン経由のみアクセス）
-        add_submenu_page( null, '個人管理', '個人管理', 'manage_options', 'pl-employee-detail', array( $this, 'render_employee_detail' ) );
+        add_submenu_page( null, '個人管理', '個人管理', 'access_custom_plugins', 'pl-employee-detail', array( $this, 'render_employee_detail' ) );
     }
 
     public function enqueue_assets( $hook ) {
@@ -102,21 +102,29 @@ class PL_Admin_Menu {
      * 追いついた後は0件更新になるため、毎回呼んでも実害はない。
      */
     public function maybe_expire_grants() {
-        if ( ! current_user_can( 'manage_options' ) ) return;
+        if ( ! current_user_can( 'edit_custom_plugins' ) ) return;
         $page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
         if ( $page === 'paid-leave-manager' || strpos( $page, 'pl-' ) === 0 ) {
             PL_Grant::expire_old_grants();
         }
     }
 
-    public function render_employee_list()   { include PL_DIR . 'admin/views/employee-list.php'; }
-    public function render_grant_register()  { include PL_DIR . 'admin/views/grant-register.php'; }
-    public function render_employee_detail() { include PL_DIR . 'admin/views/employee-detail.php'; }
-    public function render_summary()         { include PL_DIR . 'admin/views/summary.php'; }
-    public function render_rules()           { include PL_DIR . 'admin/views/rules.php'; }
-    public function render_data_reset()      { include PL_DIR . 'admin/views/data-reset.php'; } // ★ 追加
+    public function render_employee_list()   { $this->require_access(); include PL_DIR . 'admin/views/employee-list.php'; }
+    public function render_grant_register()  { $this->require_access(); include PL_DIR . 'admin/views/grant-register.php'; }
+    public function render_employee_detail() { $this->require_access(); include PL_DIR . 'admin/views/employee-detail.php'; }
+    public function render_summary()         { $this->require_access(); include PL_DIR . 'admin/views/summary.php'; }
+    public function render_rules()           { $this->require_settings(); include PL_DIR . 'admin/views/rules.php'; }
+    public function render_data_reset()      { $this->require_settings(); include PL_DIR . 'admin/views/data-reset.php'; } // ★ 追加
 
     // ★ requests.php はファイルとして残しておく（定数がfalseの間は呼ばれない）
-    public function render_requests()        { include PL_DIR . 'admin/views/requests.php'; }
-    public function render_import()          { include PL_DIR . 'admin/views/import.php'; } // ★ CSVインポート
+    public function render_requests()        { $this->require_access(); include PL_DIR . 'admin/views/requests.php'; }
+    public function render_import()          { $this->require_access(); include PL_DIR . 'admin/views/import.php'; } // ★ CSVインポート
+
+    private function require_access() {
+        if ( ! current_user_can( 'access_custom_plugins' ) ) wp_die( '権限がありません。', '', array( 'response' => 403 ) );
+    }
+
+    private function require_settings() {
+        if ( ! current_user_can( 'manage_custom_plugin_settings' ) ) wp_die( '権限がありません。', '', array( 'response' => 403 ) );
+    }
 }
